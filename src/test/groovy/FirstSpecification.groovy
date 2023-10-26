@@ -1,5 +1,8 @@
 import org.junit.jupiter.api.Test;
 import spock.lang.Specification;
+import org.mockito.Mockito;
+import com.aor.numbers.GenericListDeduplicator;
+import com.aor.numbers.GenericListSorter;
 
 class FirstSpecification extends Specification{
     def "one plus one should equal two"() {
@@ -24,7 +27,7 @@ class FirstSpecification extends Specification{
         then:
         list == [2, 3, 4]
     }
-    def "Should get an index out of bounds when removing a nonexistent item"() {
+    def "Should get an index out of bounds when removing a non-existent item"() {
         given:
         def list = [1, 2, 3, 4]
         when:
@@ -42,4 +45,34 @@ class FirstSpecification extends Specification{
         2 | 2 | 4
         3 | 2 | 9
     }
+    def "distinct_bug_8726"(){
+        given:
+        def deduplicator = Mock(GenericListDeduplicator)
+        deduplicator.deduplicate(Arrays.asList(1, 2, 4, 2)) >>
+                Arrays.asList(1, 2, 4)
+        when:
+        def result = deduplicator.deduplicate(Arrays.asList(1, 2,
+                4, 2))
+        then:
+        result == Arrays.asList(1,2,4)
+    }
+    def "true_always"(){
+        given:
+        def deduplicator = Mock(GenericListDeduplicator)
+        deduplicator.deduplicate(_) >> Arrays.asList(1, 2, 4)
+    }
+    def "different"(){
+        given:
+        def deduplicator = Mock(GenericListDeduplicator)
+        deduplicator.deduplicate(_) >>> [Arrays.asList(1, 2, 4), Arrays.asList(6, 7)]
+    }
+    /*def "Should verify notify was called"() {
+        given:
+        def notifier = Mock(GenericListDeduplicator)
+        when:
+        notifier.notify('foo')
+        then:
+        1 * notifier.notify('foo')
+    }*/
+
 }
